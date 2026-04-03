@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 
 const AddYearModal = ({ isOpen, onClose, data, onSubmit }) => {
-    // Initialize state based on groups/items
     const initialState = data[0].groups.map(group =>
         group.items.map(() => "")
     );
@@ -21,14 +20,12 @@ const AddYearModal = ({ isOpen, onClose, data, onSubmit }) => {
         onClose();
     };
 
-    // Calculate group total (excluding total row itself)
     const calculateGroupTotal = (gIndex) => {
         return formValues[gIndex].reduce((sum, val) => {
             return sum + Number(val || 0);
         }, 0);
     };
 
-    // Calculate final total (sum of all groups)
     const calculateFinalTotal = () => {
         return formValues.reduce((total, group, gIndex) => {
             return total + calculateGroupTotal(gIndex);
@@ -36,68 +33,80 @@ const AddYearModal = ({ isOpen, onClose, data, onSubmit }) => {
     };
 
     return (
-        <div style={overlay}>
-            <div style={modal}>
-                <h3>Add Financials (2025)</h3>
+        <div style={overlay} className="modal-overlay">
+            <div style={modal} className="modal">
 
-                {data[0].groups.map((group, gIndex) => {
-                    // ❌ Skip "Total Assets" group from JSON
-                    if (group.groupName.toLowerCase().includes("total assets")) {
-                        return null;
-                    }
+                {/* HEADER */}
+                <div className="modal-header">
+                    <h3>Add Financials (2025)</h3>
+                </div>
 
-                    return (
-                        <div key={gIndex} className="modal-group">
-                            <h4>{group.groupName}</h4>
+                {/* BODY */}
+                <div className="modal-body">
+                    {data[0].groups.map((group, gIndex) => {
 
-                            {group.items.map((item, iIndex) => {
-                                const isTotal =
-                                    item.isTotal ||
-                                    item.label.toLowerCase().includes("total");
+                        if (group.groupName.toLowerCase().includes("total assets")) {
+                            return null;
+                        }
 
-                                return (
-                                    <div key={iIndex} className="modal-row">
-                                        <label>{item.label}</label>
+                        return (
+                            <div key={gIndex} className="modal-group">
+                                <h4>{group.groupName}</h4>
 
-                                        <input
-                                            type="number"
-                                            value={
-                                                isTotal
-                                                    ? calculateGroupTotal(gIndex)
-                                                    : formValues[gIndex][iIndex]
-                                            }
-                                            disabled={isTotal}
-                                            onChange={(e) =>
-                                                handleChange(gIndex, iIndex, e.target.value)
-                                            }
-                                        />
-                                    </div>
-                                );
-                            })}
+                                {group.items.map((item, iIndex) => {
+                                    const isTotal =
+                                        item.isTotal ||
+                                        item.label.toLowerCase().includes("total");
+
+                                    return (
+                                        <div key={iIndex} className="modal-row">
+                                            <label>{item.label}</label>
+
+                                            <input
+                                                type="number"
+                                                placeholder="Enter amount"
+                                                value={
+                                                    isTotal
+                                                        ? calculateGroupTotal(gIndex)
+                                                        : formValues[gIndex][iIndex]
+                                                }
+                                                disabled={isTotal}
+                                                onChange={(e) =>
+                                                    handleChange(gIndex, iIndex, e.target.value)
+                                                }
+                                            />
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        );
+                    })}
+
+                    {/* FINAL TOTAL */}
+                    <div className="modal-group total-highlight">
+                        <h4>Total Assets</h4>
+
+                        <div className="modal-row">
+                            <label>Total Assets</label>
+                            <input
+                                type="number"
+                                value={calculateFinalTotal()}
+                                disabled
+                            />
                         </div>
-                    );
-                })}
-
-                {/* FINAL TOTAL */}
-                <div className="modal-group">
-                    <h4>Total Assets</h4>
-
-                    <div className="modal-row">
-                        <label>Total Assets</label>
-                        <input
-                            type="number"
-                            value={calculateFinalTotal()}
-                            disabled
-                        />
                     </div>
                 </div>
 
-                <div style={{ marginTop: "20px" }}>
-                    <button onClick={handleSubmit}>Submit</button>
-                    <button onClick={onClose} style={{ marginLeft: "10px" }}>
+                {/* FOOTER */}
+                <div className="modal-actions">
+                    <button className="btn-primary" onClick={handleSubmit}>
+                        Submit
+                    </button>
+                    <button className="btn-secondary" onClick={onClose}>
                         Cancel
                     </button>
                 </div>
+
             </div>
         </div>
     );
@@ -118,10 +127,10 @@ const overlay = {
 
 const modal = {
     background: "white",
-    padding: "20px",
-    borderRadius: "10px",
-    width: "500px",
-    maxHeight: "80vh",
+    padding: "30px",
+    borderRadius: "8px",
+    width: "520px",
+    maxHeight: "85vh",
     overflowY: "auto",
 };
 
